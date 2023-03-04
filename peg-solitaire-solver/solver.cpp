@@ -106,8 +106,8 @@ void Solver::run()
     if(resultList[0] == "NO_SOLVER") {
         qDebug() << "NO_SOLVER";
     }
-    else if(resultList[0] == "PERMISSION_DENIED") {
-        qDebug() << "PERM_DEN";
+    else if(resultList[0] == "TIMEOUT") {
+        qDebug() << "TIMEOUT";
     }
     else if(resultList[0] == "s" && resultList[1] == "UNSATISFIABLE") {
         qDebug() << "UNSAT";
