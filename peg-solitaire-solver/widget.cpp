@@ -6,7 +6,7 @@
 Widget::Widget(QWidget* parent): QWidget(parent), ui(new Ui::Widget), HOLES(33)
 {
     ui->setupUi(this);
-    connect(ui->pushButton, &QPushButton::released, this, &Widget::solve);
+    connect(ui->solveButton, &QPushButton::released, this, &Widget::solve);
 
     board = new bool[HOLES];
     squares = new Square[HOLES];
@@ -83,7 +83,7 @@ void Widget::unlockSquares()
 
 void Widget::solve()
 {
-    ui->pushButton->setEnabled(false);
+    ui->solveButton->setEnabled(false);
     lockSquares();
     setBoardFromPegsState();
 
@@ -91,6 +91,6 @@ void Widget::solve()
     solver->run();
     delete solver;
 
-    ui->pushButton->setEnabled(true);
+    ui->solveButton->setEnabled(true);
     unlockSquares();
 }
