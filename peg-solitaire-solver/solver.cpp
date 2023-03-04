@@ -205,43 +205,51 @@ QString Solver::initializeRulesGlobal()
 
 
     QString result = "";
+    int transitionSize = firstTransition.size();
 
     for(int m=0; m<moves; ++m) {
-        QString loopResult = "";
+        int transitionIndex = 0;
+        QString lastLine = "";
 
         for(int i=0; i<rules; ++i) {
-            loopResult += QString::number(holes*pegs + m*rules + i + 1) + " ";
+            lastLine += QString::number(holes*pegs + m*rules + i + 1) + " ";
             result += getRuleForMoveXYZ(holes*pegs + m*rules + i + 1, possibleMoves[i], m*holes, holes);
 
             for(int j=0; j<i; ++j) {
                 result += QString::number(-(holes*pegs + m*rules + i + 1)) + " " + QString::number(-(holes*pegs + m*rules + j + 1)) + " 0\n";
             }
+            while(transitionIndex < transitionSize) {
+                QString transitionLine;
+                int rollbackindex = transitionIndex;
+
+                if(firstTransition[transitionIndex] < 0) {
+                    transitionLine += QString::number(firstTransition[transitionIndex] - m*holes) + " ";
+                    ++transitionIndex;
+                    transitionLine += QString::number(firstTransition[transitionIndex] + m*holes) + " ";
+                }
+                else {
+                    transitionLine += QString::number(firstTransition[transitionIndex] + m*holes) + " ";
+                    ++transitionIndex;
+                    transitionLine += QString::number(firstTransition[transitionIndex] - m*holes) + " ";
+                }
+
+                while(firstTransition[++transitionIndex]) {
+                    transitionLine += QString::number(firstTransition[transitionIndex] + m*rules) + " ";
+                }
+                if(firstTransition[transitionIndex-1] <= (holes*pegs + m*rules + i + 1)) {
+                    result += transitionLine;
+                    result += "0\n";
+                    ++transitionIndex;
+                }
+                else {
+                    transitionIndex = rollbackindex;
+                    break;
+                }
+            }
         }
-        loopResult += "0\n";
+        lastLine += "0\n";
 
-        int size = firstTransition.size();
-        int i=0;
-        while(i < size) {
-            if(firstTransition[i] < 0) {
-                result += QString::number(firstTransition[i] - m*holes) + " ";
-                ++i;
-                result += QString::number(firstTransition[i] + m*holes) + " ";
-            }
-            else {
-                result += QString::number(firstTransition[i] + m*holes) + " ";
-                ++i;
-                result += QString::number(firstTransition[i] - m*holes) + " ";
-            }
-
-            while(firstTransition[++i]) {
-                result += QString::number(firstTransition[i] + m*rules) + " ";
-
-            }
-            result += "0\n";
-
-            ++i;
-        }
-        result += loopResult;
+        result += lastLine;
     }
 
     return result;
