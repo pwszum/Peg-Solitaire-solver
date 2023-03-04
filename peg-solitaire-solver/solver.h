@@ -17,9 +17,9 @@ private:
     QProcess *process;
     QString variablesToSend, rulesToSend;
 
-    bool **board;
+    bool** boards;
     int pegs, moves, holes, rules;
-    int **possibleMoves;
+    int** possibleMoves;
 
     QString initializePegVariablesCenterHole();
     QString initializeRulesGlobal();

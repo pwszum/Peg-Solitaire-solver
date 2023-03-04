@@ -15,11 +15,11 @@ Solver::Solver(const bool* BOARD, const int& HOLES, QObject* parent) : QObject(p
     for(int i=0; i<HOLES; ++i)
         if(BOARD[i]) ++pegs;
 
-    board = new bool*[pegs];
+    boards = new bool*[pegs];
     for(int i=0; i<pegs; ++i)
-        board[i] = new bool[HOLES];
+        boards[i] = new bool[HOLES];
     for(int i=0; i<HOLES; ++i)
-        board[0][i] = BOARD[i];
+        boards[0][i] = BOARD[i];
 
     moves = pegs-1;
     holes = HOLES;
@@ -51,9 +51,9 @@ Solver::Solver(const bool* BOARD, const int& HOLES, QObject* parent) : QObject(p
 Solver::~Solver()
 {
     for(int i=0; i<pegs; ++i) {
-        delete[] board[i];
+        delete[] boards[i];
     }
-    delete[] board;
+    delete[] boards;
 
     for(int i=0; i<rules; ++i) {
         delete[] possibleMoves[i];
@@ -129,7 +129,7 @@ QString Solver::initializePegVariablesCenterHole()
 
     i = 1;
     while(i <= holes) {
-        if(board[0][i-1]) result += QString::number(i) + " 0\n";
+        if(boards[0][i-1]) result += QString::number(i) + " 0\n";
         else           result += QString::number(-i) + " 0\n";
         ++i;
     }

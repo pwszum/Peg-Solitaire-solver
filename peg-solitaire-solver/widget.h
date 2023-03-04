@@ -14,18 +14,18 @@ class Widget : public QWidget
 {
     Q_OBJECT
 public:
-    Widget(QWidget *parent = nullptr);
+    Widget(QWidget* parent = nullptr);
     ~Widget();
 
 protected:
     virtual void resizeEvent(QResizeEvent*);
 
 private:
-    Ui::Widget *ui;
-    Solver *solver;
+    Ui::Widget* ui;
+    Solver* solver;
     const int HOLES;
-    bool *board;
-    Square *squares;
+    bool* board;
+    Square* squares;
 
     void setBoardFromPegsState();
     void setPegsStateFromBoard();

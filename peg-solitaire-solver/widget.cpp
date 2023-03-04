@@ -3,7 +3,7 @@
 
 #include "solver.h"
 
-Widget::Widget(QWidget *parent): QWidget(parent), ui(new Ui::Widget), HOLES(33)
+Widget::Widget(QWidget* parent): QWidget(parent), ui(new Ui::Widget), HOLES(33)
 {
     ui->setupUi(this);
     connect(ui->pushButton, &QPushButton::released, this, &Widget::solve);

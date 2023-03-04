@@ -7,7 +7,7 @@ class Square : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Square(QWidget *parent = nullptr);
+    explicit Square(QWidget* parent = nullptr);
     void changePegState();
     void setPegState(const bool&);
     bool getPegState();
