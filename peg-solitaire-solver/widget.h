@@ -1,10 +1,10 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QProcess>
 #include <QWidget>
 #include <QResizeEvent>
 #include "square.h"
+#include "solver.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -15,26 +15,26 @@ class Widget : public QWidget
     Q_OBJECT
 public:
     Widget(QWidget *parent = nullptr);
-    QProcess* p;
     ~Widget();
+
+protected:
+    virtual void resizeEvent(QResizeEvent*);
 
 private:
     Ui::Widget *ui;
+    Solver *solver;
     const int HOLES;
-    int pegs;
     bool *board;
     Square *squares;
 
     void setBoardFromPegsState();
     void setPegsStateFromBoard();
-    void paintSquares();
+    void addSquaresToGrid();
     void lockSquares();
     void unlockSquares();
 
 private slots:
     void solve();
 
-protected:
-    virtual void resizeEvent(QResizeEvent*);
 };
 #endif // WIDGET_H

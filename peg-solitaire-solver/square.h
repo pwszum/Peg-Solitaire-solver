@@ -12,14 +12,16 @@ public:
     void setPegState(const bool&);
     bool getPegState();
 
+protected:
+    virtual void paintEvent(QPaintEvent*);
+    virtual void mousePressEvent(QMouseEvent*);
+
 private:
     bool isPegPresent;
 
 signals:
 
-protected:
-    virtual void paintEvent(QPaintEvent*);
-    virtual void mousePressEvent(QMouseEvent*);
+
 };
 
 #endif // SQUARE_H

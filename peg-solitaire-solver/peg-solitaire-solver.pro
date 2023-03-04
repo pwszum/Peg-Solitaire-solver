@@ -10,10 +10,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    solver.cpp \
     square.cpp \
     widget.cpp
 
 HEADERS += \
+    solver.h \
     square.h \
     widget.h
 
