@@ -1,6 +1,7 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
+#include <QProcess>
 #include <QWidget>
 #include <QResizeEvent>
 #include "square.h"
@@ -14,11 +15,13 @@ class Widget : public QWidget
     Q_OBJECT
 public:
     Widget(QWidget *parent = nullptr);
+    QProcess* p;
     ~Widget();
 
 private:
     Ui::Widget *ui;
     const int HOLES;
+    int pegs;
     bool *board;
     Square *squares;
 
