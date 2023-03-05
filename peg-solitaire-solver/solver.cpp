@@ -155,11 +155,11 @@ QString getRuleForMoveXYZ(const int& ID, const int ARR[3], const int& MOVE, cons
 {
     QString result = "";
 
-    result += QString::number(-ID) + " " + QString::number(ARR[1]+MOVE) + " 0\n";
-    result += QString::number(-ID) + " " + QString::number(-ARR[1]-MOVE-HOLES) + " 0\n";
-
     result += QString::number(-ID) + " " + QString::number(ARR[0]+MOVE) + " " + QString::number(ARR[2]+MOVE) + " 0\n";
     result += QString::number(-ID) + " " + QString::number(-ARR[0]-MOVE) + " " + QString::number(-ARR[2]-MOVE) + " 0\n";
+
+    result += QString::number(-ID) + " " + QString::number(ARR[1]+MOVE) + " 0\n";
+    result += QString::number(-ID) + " " + QString::number(-ARR[1]-MOVE-HOLES) + " 0\n";
 
     result += QString::number(-ID) + " " + QString::number(ARR[2]+MOVE) + " " + QString::number(ARR[2]+MOVE+HOLES) + " 0\n";
     result += QString::number(-ID) + " " + QString::number(-ARR[2]-MOVE) + " " + QString::number(-ARR[2]-MOVE-HOLES) + " 0\n";
