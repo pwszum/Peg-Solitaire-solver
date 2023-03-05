@@ -9,11 +9,9 @@
 #include <QTextStream>
 #include <QFileInfo>
 
-Solver::Solver(const bool* BOARD, const int& HOLES, QObject* parent) : QObject(parent)
+Solver::Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* parent) : QObject(parent)
 {
-    pegs=0;
-    for(int i=0; i<HOLES; ++i)
-        if(BOARD[i]) ++pegs;
+    pegs=PEGS;
 
     boards = new bool*[pegs];
     for(int i=0; i<pegs; ++i)

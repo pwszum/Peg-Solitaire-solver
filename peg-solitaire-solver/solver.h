@@ -7,7 +7,7 @@
 class Solver : public QObject
 {
 public:
-    Solver(const bool* BOARD, const int& HOLES, QObject* parent = nullptr);
+    Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* parent = nullptr);
     ~Solver();
 
     void run();
