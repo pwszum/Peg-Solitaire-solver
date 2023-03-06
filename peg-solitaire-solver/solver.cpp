@@ -13,6 +13,9 @@ Solver::Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* pa
 {
     pegs=PEGS;
 
+    if(pegs==0)
+        return;
+
     boards = new bool*[pegs];
     for(int i=0; i<pegs; ++i)
         boards[i] = new bool[HOLES];
@@ -48,6 +51,9 @@ Solver::Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* pa
 
 Solver::~Solver()
 {
+    if(pegs==0)
+        return;
+
     for(int i=0; i<pegs; ++i) {
         delete[] boards[i];
     }
@@ -61,16 +67,29 @@ Solver::~Solver()
     delete process;
 }
 
-void runSatSolver(QProcess* process, const QString& CNF_PATH, QStringList& result)
+void Solver::run()
 {
-    QString kissatOutput = "";
+    if(pegs==0) {
+        qDebug() << "UNSAT";
+        return;
+    }
 
+    QTemporaryFile cnf_file;
+    if(cnf_file.open()) {
+        QTextStream stream(&cnf_file);
+        stream << variablesToSend << rulesToSend;
+        cnf_file.close();
+    }
+
+    QStringList resultList;
+
+    QString kissatOutput = "";
+    const QStringList args = {"-q", "--sat", "--conflicts=1400000", cnf_file.fileName()};
     QString kissat = qApp->applicationDirPath() + "/kissat/kissat";
     if(!QFileInfo::exists(kissat))
         kissat = qApp->applicationDirPath() + "/kissat/kissat.exe";
-    const QStringList args = {"-q", "--sat", "--conflicts=1400000", CNF_PATH};
 
-    if(QFileInfo::exists(kissat) && QFileInfo::exists(CNF_PATH)) {
+    if(QFileInfo::exists(kissat) && QFileInfo::exists(cnf_file.fileName())) {
         QFile f(kissat);
         if(f.open(QIODevice::ReadOnly)) {
             f.setPermissions(QFile::ExeGroup | QFile::ExeOther | QFile::ExeOther | QFile::ExeUser);
@@ -86,21 +105,7 @@ void runSatSolver(QProcess* process, const QString& CNF_PATH, QStringList& resul
         kissatOutput = "NO_SOLVER";
     }
 
-    result = kissatOutput.split(QRegularExpression(QStringLiteral("\\s+")), Qt::SkipEmptyParts);
-}
-
-void Solver::run()
-{
-    QTemporaryFile cnf_file;
-    if(cnf_file.open()) {
-        QTextStream stream(&cnf_file);
-        stream << variablesToSend << rulesToSend;
-        cnf_file.close();
-    }
-
-    QStringList resultList;
-    runSatSolver(process, cnf_file.fileName(), resultList);
-
+    resultList = kissatOutput.split(QRegularExpression(QStringLiteral("\\s+")), Qt::SkipEmptyParts);
     if(resultList[0] == "NO_SOLVER") {
         qDebug() << "NO_SOLVER";
     }
