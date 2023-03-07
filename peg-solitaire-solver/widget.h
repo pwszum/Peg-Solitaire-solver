@@ -26,6 +26,7 @@ private:
     const int HOLES;
     bool* board;
     Square* squares;
+    int pegs;
 
     void setBoardFromPegsState();
     void setPegsStateFromBoard();

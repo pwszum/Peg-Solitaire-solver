@@ -7,7 +7,7 @@
 class Solver : public QObject
 {
 public:
-    Solver(const bool* BOARD, const int& HOLES, QObject* parent = nullptr);
+    Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* parent = nullptr);
     ~Solver();
 
     void run();
@@ -20,8 +20,11 @@ private:
     bool** boards;
     int pegs, moves, holes, rules;
     int** possibleMoves;
+    bool* finishingPattern;
+    int finishingHoles;
 
-    QString initializePegVariablesCenterHole();
+    void computeFinishingPattern(bool* pattern);
+    QString initializePegVariables();
     QString initializeRulesGlobal();
 };
 
