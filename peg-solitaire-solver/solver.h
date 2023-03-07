@@ -20,8 +20,11 @@ private:
     bool** boards;
     int pegs, moves, holes, rules;
     int** possibleMoves;
+    bool* finishingPattern;
+    int finishingHoles;
 
-    QString initializePegVariablesCenterHole();
+    void computeFinishingPattern(bool* pattern);
+    QString initializePegVariables();
     QString initializeRulesGlobal();
 };
 
