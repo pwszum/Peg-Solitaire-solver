@@ -2,7 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include <QResizeEvent>
+#include <QKeyEvent>
 #include "square.h"
 #include "solver.h"
 
@@ -19,23 +19,32 @@ public:
 
 protected:
     virtual void resizeEvent(QResizeEvent*);
+    virtual void keyPressEvent(QKeyEvent*);
 
 private:
     Ui::Widget* ui;
     Solver* solver;
     const int HOLES;
-    bool* board;
+    bool** boards;
+    int selectedBoard;
     Square* squares;
     int pegs;
 
-    void setBoardFromPegsState();
-    void setPegsStateFromBoard();
+    void setCurrentBoardFromSquaresState(const bool& updatePegsN = true);
+    void setSquaresStateFromCurrentBoard(const bool& updatePegsN = true);
     void addSquaresToGrid();
     void lockSquares();
     void unlockSquares();
+    void changeSquaresToNextBoard();
+    void changeSquaresToPrevBoard();
 
 private slots:
     void solve();
+    void reset();
+
+signals:
+    void backPressed();
+    void forwardPressed();
 
 };
 #endif // WIDGET_H

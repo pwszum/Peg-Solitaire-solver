@@ -13,9 +13,10 @@
 //#include <random>
 //#include <chrono>
 
-Solver::Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* parent) : QObject(parent)
+Solver::Solver(bool** BOARDS, const int& HOLES, const int& PEGS, QObject* parent) : QObject(parent)
 {
     pegs=PEGS;
+    isSAT = false;
 
     if(pegs==0)
         return;
@@ -24,7 +25,7 @@ Solver::Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* pa
     for(int i=0; i<pegs; ++i)
         boards[i] = new bool[HOLES];
     for(int i=0; i<HOLES; ++i)
-        boards[0][i] = BOARD[i];
+        boards[0][i] = BOARDS[0][i];
 
     moves = pegs-1;
     holes = HOLES;
@@ -125,6 +126,7 @@ void Solver::run()
         qDebug() << "UNSAT";
     }
     else {
+        isSAT = true;
         qDebug() << "SAT";
 
         int counter=3;
@@ -174,6 +176,24 @@ void Solver::run()
             else           deb << ".";
         } deb << "\n";
     }
+}
+
+bool Solver::getResult(bool **output_boards)
+{
+    if(pegs==0 || finishingHoles==0 || !isSAT) {
+        qDebug() << "UNSAT";
+        for(int i=0; i<holes; ++i) {
+            output_boards[1][i] = false;
+        }
+        return false;
+    }
+
+    for(int i=1; i<=moves; ++i) {
+        for(int j=0; j<holes; ++j) {
+            output_boards[i][j] = boards[i][j];
+        }
+    }
+    return true;
 }
 
 void Solver::computeFinishingPattern(bool* pattern)
@@ -332,9 +352,9 @@ QString Solver::initializePegVariables()
         ++i;
     }
 
-            int t = finishingHolesVariables[finishingHoles/2];
-            finishingHolesVariables[finishingHoles/2] = finishingHolesVariables[0];
-            finishingHolesVariables[0] = t;
+    int t = finishingHolesVariables[finishingHoles/2];
+    finishingHolesVariables[finishingHoles/2] = finishingHolesVariables[0];
+    finishingHolesVariables[0] = t;
 
 //    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 //    if(finishingHoles==5) {

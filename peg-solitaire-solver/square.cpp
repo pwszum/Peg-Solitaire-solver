@@ -50,5 +50,5 @@ void Square::paintEvent(QPaintEvent*)
 void Square::mousePressEvent(QMouseEvent*)
 {
     changePegState();
-    update();
+    repaint();
 }
