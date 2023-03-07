@@ -7,11 +7,11 @@
 class Solver : public QObject
 {
 public:
-    Solver(const bool* BOARD, const int& HOLES, const int& PEGS, QObject* parent = nullptr);
+    Solver(bool** BOARDS, const int& HOLES, const int& PEGS, QObject* parent = nullptr);
     ~Solver();
 
     void run();
-    void getResultOrSomething();
+    bool getResult(bool** output_boards);
 
 private:
     QProcess *process;
@@ -22,6 +22,8 @@ private:
     int** possibleMoves;
     bool* finishingPattern;
     int finishingHoles;
+
+    bool isSAT;
 
     void computeFinishingPattern(bool* pattern);
     QString initializePegVariables();

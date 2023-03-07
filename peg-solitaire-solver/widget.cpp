@@ -9,8 +9,15 @@ Widget::Widget(QWidget* parent): QWidget(parent), ui(new Ui::Widget), HOLES(33)
 {
     ui->setupUi(this);
     connect(ui->solveButton, &QPushButton::released, this, &Widget::solve);
+    connect(ui->leftButton, &QPushButton::released, this, &Widget::changeSquaresToPrevBoard);
+    connect(ui->rightButton, &QPushButton::released, this, &Widget::changeSquaresToNextBoard);
 
-    board = new bool[HOLES];
+    boards = new bool*[HOLES-1];
+    for(int i=0; i<HOLES-1; ++i)
+        boards[i] = new bool[HOLES];
+
+    selectedBoard = 0;
+
     squares = new Square[HOLES];
     squares[HOLES/2].changePegState();
 
@@ -20,7 +27,9 @@ Widget::Widget(QWidget* parent): QWidget(parent), ui(new Ui::Widget), HOLES(33)
 Widget::~Widget()
 {
     delete ui;
-    delete[] board;
+    for(int i=0; i<HOLES-1; ++i)
+        delete[] boards[i];
+    delete[] boards;
     delete[] squares;
 }
 
@@ -42,21 +51,34 @@ void Widget::resizeEvent(QResizeEvent*)
     }
 }
 
-void Widget::setBoardFromPegsState()
+void Widget::keyPressEvent(QKeyEvent *e)
 {
-    pegs=0;
-    for(int i=0; i<HOLES; ++i) {
-        board[i] = squares[i].getPegState();
-        if(board[i]) ++pegs;
+    if(e->key() == Qt::Key_A || e->key() == Qt::Key_S || e->key() == Qt::Key_Backspace || e->key() == Qt::Key_PageUp) {
+        emit backPressed();
+    }
+    else if(e->key() == Qt::Key_D || e->key() == Qt::Key_W || e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter || e->key() == Qt::Key_PageDown) {
+        emit forwardPressed();
     }
 }
 
-void Widget::setPegsStateFromBoard()
+void Widget::setCurrentBoardFromSquaresState(const bool& updatePegsN)
 {
-    pegs=0;
+    if(updatePegsN) pegs=0;
     for(int i=0; i<HOLES; ++i) {
-        squares[i].setPegState(board[i]);
-        if(board[i]) ++pegs;
+        boards[selectedBoard][i] = squares[i].getPegState();
+        if(updatePegsN && boards[selectedBoard][i]) ++pegs;
+    }
+}
+
+void Widget::setSquaresStateFromCurrentBoard(const bool& updatePegsN)
+{
+    if(updatePegsN) pegs=0;
+    for(int i=0; i<HOLES; ++i) {
+        if(boards[selectedBoard][i] ^ squares[i].getPegState()) {
+            squares[i].setPegState(boards[selectedBoard][i]);
+            squares[i].repaint();
+        }
+        if(updatePegsN && boards[selectedBoard][i]) ++pegs;
     }
 }
 
@@ -88,20 +110,58 @@ void Widget::unlockSquares()
         squares[i].setEnabled(true);
 }
 
+void Widget::changeSquaresToNextBoard()
+{
+    ++selectedBoard;
+    if(pegs) selectedBoard %= pegs;
+
+    setSquaresStateFromCurrentBoard(false);
+}
+
+void Widget::changeSquaresToPrevBoard()
+{
+    --selectedBoard;
+    if(selectedBoard < 0)
+        selectedBoard += pegs;
+
+    setSquaresStateFromCurrentBoard(false);
+}
+
 void Widget::solve()
 {
-    ui->solveButton->setEnabled(false);
     lockSquares();
-    setBoardFromPegsState();
-    if(pegs != 0) {
-        Solver* solver = new Solver(board, HOLES, pegs);
-        solver->run();
-        delete solver;
+    setCurrentBoardFromSquaresState();
+
+    Solver* solver = new Solver(boards, HOLES, pegs);
+    solver->run();
+    if(!solver->getResult(boards)) {
+        changeSquaresToNextBoard();
+        setSquaresStateFromCurrentBoard();
     }
     else {
-        qDebug() << "UNSAT";
+        changeSquaresToPrevBoard();
+        ui->leftButton->setEnabled(true);
+        ui->rightButton->setEnabled(true);
+        connect(this, &Widget::backPressed, this, &Widget::changeSquaresToPrevBoard);
+        connect(this, &Widget::forwardPressed, this, &Widget::changeSquaresToNextBoard);
     }
+    disconnect(ui->solveButton, &QPushButton::released, this, &Widget::solve);
+    ui->solveButton->setText("Reset");
+    connect(ui->solveButton, &QPushButton::released, this, &Widget::reset);
+    delete solver;
+}
 
-    ui->solveButton->setEnabled(true);
+void Widget::reset()
+{
     unlockSquares();
+    selectedBoard = 0;
+    setSquaresStateFromCurrentBoard();
+    ui->leftButton->setEnabled(false);
+    ui->rightButton->setEnabled(false);
+    disconnect(this, &Widget::backPressed, this, &Widget::changeSquaresToPrevBoard);
+    disconnect(this, &Widget::forwardPressed, this, &Widget::changeSquaresToNextBoard);
+
+    disconnect(ui->solveButton, &QPushButton::released, this, &Widget::reset);
+    ui->solveButton->setText("Solve");
+    connect(ui->solveButton, &QPushButton::released, this, &Widget::solve);
 }
