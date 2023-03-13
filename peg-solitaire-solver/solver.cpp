@@ -235,42 +235,42 @@ void Solver::computeFinishingPattern(bool* pattern)
     const int vecN = (n1+n2)%2*32 + (n0+n2)%2*16 + (n0+n1)%2*8 + (n4+n5)%2*4 + (n3+n5)%2*2 + (n3+n4)%2;
 
     switch(vecN) {
-        case 0b110101:
-            pattern[0] = true; pattern[15] = true; pattern[18] = true; pattern[30] = true;
-            finishingHoles = 4;
-            break;
+//        case 0b110101:
+//            pattern[0] = true; pattern[15] = true; pattern[18] = true; pattern[30] = true;
+//            finishingHoles = 4;
+//            break;
         case 0b011011:
             pattern[1] = true; pattern[13] = true; pattern[16] = true; pattern[19] = true; pattern[31] = true;
             finishingHoles = 5;
             break;
-        case 0b101110:
-            pattern[2] = true; pattern[14] = true; pattern[17] = true; pattern[32] = true;
-            finishingHoles = 4;
-            break;
-        case 0b011110:
-            pattern[3] = true; pattern[22] = true; pattern[25] = true;
-            finishingHoles = 3;
-            break;
-        case 0b101101:
-            pattern[4] = true; pattern[20] = true; pattern[23] = true; pattern[26] = true;
-            finishingHoles = 4;
-            break;
-        case 0b110011:
-            pattern[5] = true; pattern[21] = true; pattern[24] = true;
-            finishingHoles = 3;
-            break;
-        case 0b110110:
-            pattern[6] = true; pattern[9]  = true; pattern[12] = true; pattern[28] = true;
-            finishingHoles = 4;
-            break;
-        case 0b011101:
-            pattern[7] = true; pattern[10] = true; pattern[29] = true;
-            finishingHoles = 3;
-            break;
-        case 0b101011:
-            pattern[8] = true; pattern[11] = true; pattern[27] = true;
-            finishingHoles = 3;
-            break;
+//        case 0b101110:
+//            pattern[2] = true; pattern[14] = true; pattern[17] = true; pattern[32] = true;
+//            finishingHoles = 4;
+//            break;
+//        case 0b011110:
+//            pattern[3] = true; pattern[22] = true; pattern[25] = true;
+//            finishingHoles = 3;
+//            break;
+//        case 0b101101:
+//            pattern[4] = true; pattern[20] = true; pattern[23] = true; pattern[26] = true;
+//            finishingHoles = 4;
+//            break;
+//        case 0b110011:
+//            pattern[5] = true; pattern[21] = true; pattern[24] = true;
+//            finishingHoles = 3;
+//            break;
+//        case 0b110110:
+//            pattern[6] = true; pattern[9]  = true; pattern[12] = true; pattern[28] = true;
+//            finishingHoles = 4;
+//            break;
+//        case 0b011101:
+//            pattern[7] = true; pattern[10] = true; pattern[29] = true;
+//            finishingHoles = 3;
+//            break;
+//        case 0b101011:
+//            pattern[8] = true; pattern[11] = true; pattern[27] = true;
+//            finishingHoles = 3;
+//            break;
         default:
             finishingHoles = 0;
             break;
@@ -316,19 +316,13 @@ QString Solver::initializePegVariables()
 {
     int i=0;
     int sum=0;
-    int holechange;
-    switch(finishingHoles) {
-        case 3: holechange=1; break;    // -3 + 3  + 1
-        case 4: holechange=3; break;    // -4 + 6  + 1
-        case 5: holechange=6; break;    // -5 + 10 + 1
-        default: return "";
-    }
+    if(finishingHoles != 5) return "";
 
     for(int i=1; i<rules; ++i) sum += i;
 
     QString result = "p cnf "
             + QString::number(holes*pegs + rules*moves) + " "
-            + QString::number(holes*2+holechange + (rules*8 + holes*2 + sum + 1)*moves) + "\n";
+            + QString::number(holes*2 + (rules*8 + holes*2 + sum + 1)*moves) + "\n";
 
     i = 1;
     while(i <= holes) {
@@ -337,46 +331,12 @@ QString Solver::initializePegVariables()
         ++i;
     }
 
-    int* finishingHolesVariables = new int[finishingHoles];
-    int j=0;
-
     i = holes*moves + 1;
     while(i <= holes*pegs) {
-        if(!finishingPattern[i-holes*moves-1]) {
-            result += QString::number(-i) + " 0\n";
-        }
-        else {
-            finishingHolesVariables[j] = i;
-            ++j;
-        }
+        result += QString::number(-i) + " 0\n";
         ++i;
     }
 
-    int t = finishingHolesVariables[finishingHoles/2];
-    finishingHolesVariables[finishingHoles/2] = finishingHolesVariables[0];
-    finishingHolesVariables[0] = t;
-
-//    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-//    if(finishingHoles==5) {
-//        int t = finishingHolesVariables[2];
-//        finishingHolesVariables[2] = finishingHolesVariables[0];
-//        finishingHolesVariables[0] = t;
-//        std::shuffle(finishingHolesVariables+1, finishingHolesVariables+finishingHoles, std::default_random_engine(seed));
-//    }
-
-    for(int i=0; i<finishingHoles; ++i) {
-        result += QString::number(finishingHolesVariables[i]) + " ";
-        qDebug() << finishingHolesVariables[i];
-    } result += "0\n";
-
-
-    for(int i=0; i<finishingHoles-1; ++i) {
-        for(int j=i+1; j<finishingHoles; ++j) {
-            result += QString::number(-finishingHolesVariables[i]) + " " + QString::number(-finishingHolesVariables[j]) + " 0\n";
-        }
-    }
-
-    delete[] finishingHolesVariables;
     return result;
 }
 
