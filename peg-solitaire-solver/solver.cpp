@@ -16,6 +16,7 @@
 Solver::Solver(bool** BOARDS, const int& HOLES, const int& PEGS, QObject* parent) : QObject(parent)
 {
     pegs=PEGS;
+    holes = HOLES;
     isSAT = false;
 
     if(pegs==0)
@@ -28,7 +29,6 @@ Solver::Solver(bool** BOARDS, const int& HOLES, const int& PEGS, QObject* parent
         boards[0][i] = BOARDS[0][i];
 
     moves = pegs-1;
-    holes = HOLES;
     rules = 38;
 
     const int POSSIBLE_MOVES[][3] = {{1,2,3}, {1,4,9}, {2,5,10}, {3,6,11},
@@ -181,7 +181,6 @@ void Solver::run()
 bool Solver::getResult(bool **output_boards)
 {
     if(pegs==0 || finishingHoles==0 || !isSAT) {
-        qDebug() << "UNSAT";
         for(int i=0; i<holes; ++i) {
             output_boards[1][i] = false;
         }
