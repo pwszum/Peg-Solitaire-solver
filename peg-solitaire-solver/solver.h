@@ -26,7 +26,7 @@ private:
     bool isSAT;
 
     void computeFinishingPattern(bool* pattern);
-    QString initializePegVariables();
+    QString initializePegVariablesCenterHole();
     QString initializeRulesGlobal();
 };
 

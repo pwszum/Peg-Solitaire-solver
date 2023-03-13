@@ -53,7 +53,7 @@ Solver::Solver(bool** BOARDS, const int& HOLES, const int& PEGS, QObject* parent
     computeFinishingPattern(finishingPattern);
 
     process = new QProcess();
-    variablesToSend = initializePegVariables();
+    variablesToSend = initializePegVariablesCenterHole();
     rulesToSend = initializeRulesGlobal();
 }
 
@@ -312,7 +312,7 @@ void Solver::computeFinishingPattern(bool* pattern)
     deb << "   (" << Qt::bin << vecN << ")\n";
 }
 
-QString Solver::initializePegVariables()
+QString Solver::initializePegVariablesCenterHole()
 {
     int i=0;
     int sum=0;
@@ -332,6 +332,14 @@ QString Solver::initializePegVariables()
     }
 
     i = holes*moves + 1;
+    while(i <= holes*moves + holes/2) {
+        result += QString::number(-i) + " 0\n";
+        ++i;
+    }
+
+    result += QString::number(i) + " 0\n";
+    ++i;
+
     while(i <= holes*pegs) {
         result += QString::number(-i) + " 0\n";
         ++i;
